@@ -56,7 +56,7 @@ instance Default TaijiConfig where
 
 instance ToJSON TaijiConfig where
     toEncoding = genericToEncoding defaultOptions
-        { fieldLabelModifier = ("_taiji_" ++) }
+        { fieldLabelModifier = drop 7 }
 
 instance FromJSON TaijiConfig where
     parseJSON = genericParseJSON defaultOptions
