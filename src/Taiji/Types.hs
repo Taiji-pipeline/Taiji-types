@@ -55,6 +55,8 @@ instance Default TaijiConfig where
         }
 
 instance ToJSON TaijiConfig where
+    toJSON = genericToJSON defaultOptions
+        { fieldLabelModifier = drop 7 }
     toEncoding = genericToEncoding defaultOptions
         { fieldLabelModifier = drop 7 }
 
