@@ -18,7 +18,7 @@ data RankTable = RankTable
     { rowNames    :: V.Vector B.ByteString
     , colNames    :: V.Vector T.Text
     , ranks       :: MU.Matrix Double
-    , expressions :: MU.Matrix Double
+    , expressions :: Maybe (MU.Matrix Double)
     } deriving (Generic)
 
 instance Binary (MU.Matrix Double)
@@ -40,6 +40,8 @@ data TaijiConfig = TaijiConfig
     , _taiji_star_index :: Maybe FilePath
     , _taiji_annotation :: Maybe FilePath
     , _taiji_rsem_index :: Maybe FilePath
+    , _taiji_genome_index :: Maybe FilePath
+    , _taiji_motif_file :: Maybe FilePath
     } deriving (Generic)
 
 instance Default TaijiConfig where
@@ -52,6 +54,8 @@ instance Default TaijiConfig where
         , _taiji_star_index = def
         , _taiji_annotation = def
         , _taiji_rsem_index = def
+        , _taiji_genome_index = def
+        , _taiji_motif_file = def
         }
 
 instance ToJSON TaijiConfig where
