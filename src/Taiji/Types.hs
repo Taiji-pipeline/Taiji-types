@@ -15,7 +15,7 @@ import           Data.Vector.Binary    ()
 import           GHC.Generics          (Generic)
 
 data RankTable = RankTable
-    { rowNames    :: V.Vector B.ByteString
+    { rowNames    :: V.Vector T.Text
     , colNames    :: V.Vector T.Text
     , ranks       :: MU.Matrix Double
     , expressions :: Maybe (MU.Matrix Double)
@@ -23,13 +23,19 @@ data RankTable = RankTable
 
 instance Binary (MU.Matrix Double)
 instance Binary RankTable
+instance FromJSON (MU.Matrix Double)
+instance ToJSON (MU.Matrix Double)
+instance FromJSON RankTable
+instance ToJSON RankTable
 
 data TaijiResults = TaijiResults
     { ranktable :: RankTable
-    , nets      :: M.Map T.Text (M.Map B.ByteString B.ByteString)
+    , nets      :: M.Map T.Text (M.Map T.Text T.Text)
     } deriving (Generic)
 
 instance Binary TaijiResults
+instance FromJSON TaijiResults
+instance ToJSON TaijiResults
 
 data TaijiConfig = TaijiConfig
     { _taiji_output_dir :: FilePath
