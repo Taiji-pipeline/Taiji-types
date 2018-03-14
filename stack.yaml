@@ -1,4 +1,16 @@
-resolver: lts-9.1
+resolver:    lts-10.7
 
 packages:
 - .
+
+extra-deps:
+
+- git:     https://github.com/Taiji-pipeline/bio-pipelines.git
+  commit:  6af63147064c8bb7721e719fa6accc4aecea67bd
+  
+- git:     https://github.com/Taiji-pipeline/bio-experiments.git
+  commit:  12d25db4045eccb84b2a8b790db7eec4982e4365
+
+- bioinformatics-toolkit-0.4.0
+- HsHTSLib-1.3.2.2
+- clustering-0.4.0

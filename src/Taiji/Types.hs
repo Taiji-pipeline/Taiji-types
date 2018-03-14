@@ -2,17 +2,21 @@
 {-# LANGUAGE FlexibleInstances #-}
 module Taiji.Types where
 
+import           Bio.Data.Bed           (BED)
+import           Bio.Pipeline.Instances ()
 import           Data.Aeson
 import           Data.Aeson.Types
-import           Data.Binary           (Binary (..))
-import qualified Data.ByteString.Char8 as B
+import           Data.Binary            (Binary (..))
+import           Data.Binary.Orphans    ()
+import qualified Data.ByteString.Char8  as B
+import           Data.CaseInsensitive   (CI)
 import           Data.Default.Class
-import qualified Data.Map.Strict       as M
-import qualified Data.Matrix.Unboxed   as MU
-import qualified Data.Text             as T
-import qualified Data.Vector           as V
-import           Data.Vector.Binary    ()
-import           GHC.Generics          (Generic)
+import qualified Data.Map.Strict        as M
+import qualified Data.Matrix.Unboxed    as MU
+import qualified Data.Text              as T
+import qualified Data.Vector            as V
+import           Data.Vector.Binary     ()
+import           GHC.Generics           (Generic)
 
 data RankTable = RankTable
     { rowNames    :: V.Vector T.Text
@@ -21,10 +25,7 @@ data RankTable = RankTable
     , expressions :: Maybe (MU.Matrix Double)
     } deriving (Generic)
 
-instance Binary (MU.Matrix Double)
 instance Binary RankTable
-instance FromJSON (MU.Matrix Double)
-instance ToJSON (MU.Matrix Double)
 instance FromJSON RankTable
 instance ToJSON RankTable
 
@@ -38,16 +39,16 @@ instance FromJSON TaijiResults
 instance ToJSON TaijiResults
 
 data TaijiConfig = TaijiConfig
-    { _taiji_output_dir :: FilePath
-    , _taiji_input      :: FilePath
-    , _taiji_picard     :: Maybe FilePath
-    , _taiji_genome     :: Maybe FilePath
-    , _taiji_bwa_index  :: Maybe FilePath
-    , _taiji_star_index :: Maybe FilePath
-    , _taiji_annotation :: Maybe FilePath
-    , _taiji_rsem_index :: Maybe FilePath
+    { _taiji_output_dir   :: FilePath
+    , _taiji_input        :: FilePath
+    , _taiji_picard       :: Maybe FilePath
+    , _taiji_genome       :: Maybe FilePath
+    , _taiji_bwa_index    :: Maybe FilePath
+    , _taiji_star_index   :: Maybe FilePath
+    , _taiji_annotation   :: Maybe FilePath
+    , _taiji_rsem_index   :: Maybe FilePath
     , _taiji_genome_index :: Maybe FilePath
-    , _taiji_motif_file :: Maybe FilePath
+    , _taiji_motif_file   :: Maybe FilePath
     } deriving (Generic)
 
 instance Default TaijiConfig where
@@ -73,3 +74,19 @@ instance ToJSON TaijiConfig where
 instance FromJSON TaijiConfig where
     parseJSON = genericParseJSON defaultOptions
         { fieldLabelModifier = drop 7 }
+
+data NetNode = NetNode
+    { nodeName      :: CI B.ByteString
+    , nodeExpression :: Maybe Double
+    , nodeScaledExpression :: Maybe Double
+    , pageRankScore :: Maybe Double
+    } deriving (Generic)
+
+data NetEdge = NetEdge
+    { weightExpression  :: Maybe Double
+    , weightCorrelation :: Maybe Double
+    , sites             :: [BED]
+    } deriving (Generic)
+
+instance Binary NetNode
+instance Binary NetEdge
