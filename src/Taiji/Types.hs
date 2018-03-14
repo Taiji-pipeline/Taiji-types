@@ -80,13 +80,13 @@ data NetNode = NetNode
     , nodeExpression :: Maybe Double
     , nodeScaledExpression :: Maybe Double
     , pageRankScore :: Maybe Double
-    } deriving (Generic)
+    } deriving (Generic, Show, Read)
 
 data NetEdge = NetEdge
     { weightExpression  :: Maybe Double
     , weightCorrelation :: Maybe Double
     , sites             :: [BED]
-    } deriving (Generic)
+    } deriving (Generic, Show, Read)
 
 instance Binary NetNode
 instance Binary NetEdge
