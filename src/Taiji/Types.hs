@@ -11,6 +11,7 @@ import           Data.Binary.Orphans    ()
 import qualified Data.ByteString.Char8  as B
 import           Data.CaseInsensitive   (CI)
 import           Data.Default.Class
+import           Data.Hashable
 import qualified Data.Map.Strict        as M
 import qualified Data.Matrix.Unboxed    as MU
 import qualified Data.Text              as T
@@ -76,11 +77,14 @@ instance FromJSON TaijiConfig where
         { fieldLabelModifier = drop 7 }
 
 data NetNode = NetNode
-    { nodeName      :: CI B.ByteString
-    , nodeExpression :: Maybe Double
+    { nodeName             :: CI B.ByteString
+    , nodeExpression       :: Maybe Double
     , nodeScaledExpression :: Maybe Double
-    , pageRankScore :: Maybe Double
-    } deriving (Generic, Show, Read)
+    , pageRankScore        :: Maybe Double
+    } deriving (Generic, Show, Read, Eq)
+
+instance Hashable NetNode where
+    hashWithSalt salt at = hashWithSalt salt $ nodeName at
 
 data NetEdge = NetEdge
     { weightExpression  :: Maybe Double

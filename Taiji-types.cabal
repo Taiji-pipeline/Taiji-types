@@ -26,6 +26,7 @@ library
                      , case-insensitive
                      , containers
                      , data-default-class
+                     , hashable
                      , text
                      , vector
                      , vector-binary-instances
