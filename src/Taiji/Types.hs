@@ -1,23 +1,28 @@
 {-# LANGUAGE DeriveGeneric     #-}
 {-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE TemplateHaskell   #-}
 module Taiji.Types where
 
-import           Bio.Data.Bed           (BED)
+import           Bio.Data.Bed
 import           Bio.Pipeline.Instances ()
 import           Data.Aeson
-import           Data.Aeson.Types
-import           Data.Binary            (Binary (..))
-import           Data.Binary.Orphans    ()
 import qualified Data.ByteString.Char8  as B
 import           Data.CaseInsensitive   (CI)
 import           Data.Default.Class
 import           Data.Hashable
 import qualified Data.Map.Strict        as M
 import qualified Data.Matrix.Unboxed    as MU
+import           Data.Serialize         (Serialize (..))
+import           Data.Serialize.Text    ()
 import qualified Data.Text              as T
 import qualified Data.Vector            as V
-import           Data.Vector.Binary     ()
+import           Data.Vector.Serialize  ()
 import           GHC.Generics           (Generic)
+
+type Promoter = BEDExt BED3 (CI B.ByteString)
+type RegDomain = BEDExt BED3 (CI B.ByteString)
+-- type Assignment = BEDExt BED3
 
 data RankTable = RankTable
     { rowNames    :: V.Vector T.Text
@@ -26,18 +31,10 @@ data RankTable = RankTable
     , expressions :: Maybe (MU.Matrix Double)
     } deriving (Generic)
 
-instance Binary RankTable
-instance FromJSON RankTable
-instance ToJSON RankTable
-
 data TaijiResults = TaijiResults
     { ranktable :: RankTable
     , nets      :: M.Map T.Text (M.Map T.Text T.Text)
     } deriving (Generic)
-
-instance Binary TaijiResults
-instance FromJSON TaijiResults
-instance ToJSON TaijiResults
 
 data TaijiConfig = TaijiConfig
     { _taiji_output_dir   :: FilePath
@@ -89,8 +86,18 @@ instance Hashable NetNode where
 data NetEdge = NetEdge
     { weightExpression  :: Maybe Double
     , weightCorrelation :: Maybe Double
-    , sites             :: [BED]
+    , sites             :: Double
     } deriving (Generic, Show, Read)
 
-instance Binary NetNode
-instance Binary NetEdge
+instance Serialize NetNode
+instance Serialize NetEdge
+instance Serialize TaijiResults
+instance Serialize RankTable
+
+instance FromJSON TaijiResults
+instance ToJSON TaijiResults
+instance FromJSON RankTable
+instance ToJSON RankTable
+
+instance Default (CI B.ByteString) where
+    def = ""
