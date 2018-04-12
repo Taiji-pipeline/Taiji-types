@@ -11,30 +11,8 @@ import qualified Data.ByteString.Char8  as B
 import           Data.CaseInsensitive   (CI)
 import           Data.Default.Class
 import           Data.Hashable
-import qualified Data.Map.Strict        as M
-import qualified Data.Matrix.Unboxed    as MU
 import           Data.Serialize         (Serialize (..))
-import           Data.Serialize.Text    ()
-import qualified Data.Text              as T
-import qualified Data.Vector            as V
-import           Data.Vector.Serialize  ()
 import           GHC.Generics           (Generic)
-
-type Promoter = BEDExt BED3 (CI B.ByteString)
-type RegDomain = BEDExt BED3 (CI B.ByteString)
--- type Assignment = BEDExt BED3
-
-data RankTable = RankTable
-    { rowNames    :: V.Vector T.Text
-    , colNames    :: V.Vector T.Text
-    , ranks       :: MU.Matrix Double
-    , expressions :: Maybe (MU.Matrix Double)
-    } deriving (Generic)
-
-data TaijiResults = TaijiResults
-    { ranktable :: RankTable
-    , nets      :: M.Map T.Text (M.Map T.Text T.Text)
-    } deriving (Generic)
 
 data TaijiConfig = TaijiConfig
     { _taiji_output_dir   :: FilePath
@@ -73,8 +51,13 @@ instance FromJSON TaijiConfig where
     parseJSON = genericParseJSON defaultOptions
         { fieldLabelModifier = drop 7 }
 
+type GeneName = CI B.ByteString
+type Promoter = BEDExt BED3 GeneName
+type RegDomain = BEDExt BED3 GeneName
+-- type Assignment = BEDExt BED3
+
 data NetNode = NetNode
-    { nodeName             :: CI B.ByteString
+    { nodeName             :: GeneName
     , nodeExpression       :: Maybe Double
     , nodeScaledExpression :: Maybe Double
     , pageRankScore        :: Maybe Double
@@ -83,21 +66,15 @@ data NetNode = NetNode
 instance Hashable NetNode where
     hashWithSalt salt at = hashWithSalt salt $ nodeName at
 
+instance Serialize NetNode
+
 data NetEdge = NetEdge
     { weightExpression  :: Maybe Double
     , weightCorrelation :: Maybe Double
-    , sites             :: Double
+    , sites             :: [Double]
     } deriving (Generic, Show, Read)
 
-instance Serialize NetNode
 instance Serialize NetEdge
-instance Serialize TaijiResults
-instance Serialize RankTable
-
-instance FromJSON TaijiResults
-instance ToJSON TaijiResults
-instance FromJSON RankTable
-instance ToJSON RankTable
 
 instance Default (CI B.ByteString) where
     def = ""
