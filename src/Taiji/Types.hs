@@ -54,6 +54,12 @@ instance FromJSON TaijiConfig where
 type GeneName = CI B.ByteString
 type Promoter = BEDExt BED3 GeneName
 type RegDomain = BEDExt BED3 GeneName
+
+data DomainType = Promoter
+                | Enhancer
+                deriving (Eq)
+
+type Linkage = (GeneName, [(GeneName, Double)], [(GeneName, Double)])
 -- type Assignment = BEDExt BED3
 
 data NetNode = NetNode
@@ -71,7 +77,7 @@ instance Serialize NetNode
 data NetEdge = NetEdge
     { weightExpression  :: Maybe Double
     , weightCorrelation :: Maybe Double
-    , sites             :: [Double]
+    , sites             :: Double
     } deriving (Generic, Show, Read)
 
 instance Serialize NetEdge
