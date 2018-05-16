@@ -6,6 +6,7 @@ module Taiji.Types where
 
 import           Bio.Data.Bed
 import           Bio.Pipeline.Instances ()
+import           Bio.Pipeline.Utils     (Directory)
 import           Data.Aeson
 import qualified Data.ByteString.Char8  as B
 import           Data.CaseInsensitive   (CI)
@@ -15,7 +16,7 @@ import           Data.Serialize         (Serialize (..))
 import           GHC.Generics           (Generic)
 
 data TaijiConfig = TaijiConfig
-    { _taiji_output_dir   :: FilePath
+    { _taiji_output_dir   :: Directory
     , _taiji_input        :: FilePath
     , _taiji_picard       :: Maybe FilePath
     , _taiji_genome       :: Maybe FilePath
