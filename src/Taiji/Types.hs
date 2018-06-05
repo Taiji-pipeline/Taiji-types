@@ -11,7 +11,6 @@ import           Data.Aeson
 import qualified Data.ByteString.Char8  as B
 import           Data.CaseInsensitive   (CI)
 import           Data.Default.Class
-import           Data.Hashable
 import           Data.Serialize         (Serialize (..))
 import           GHC.Generics           (Generic)
 
@@ -26,6 +25,7 @@ data TaijiConfig = TaijiConfig
     , _taiji_rsem_index   :: Maybe FilePath
     , _taiji_genome_index :: Maybe FilePath
     , _taiji_motif_file   :: Maybe FilePath
+    , _taiji_tmp_dir      :: Maybe FilePath
     } deriving (Generic)
 
 instance Default TaijiConfig where
@@ -40,14 +40,17 @@ instance Default TaijiConfig where
         , _taiji_rsem_index = def
         , _taiji_genome_index = def
         , _taiji_motif_file = def
+        , _taiji_tmp_dir = def
         }
 
+-- Drop "_taiji_" prefix
 instance ToJSON TaijiConfig where
     toJSON = genericToJSON defaultOptions
         { fieldLabelModifier = drop 7 }
     toEncoding = genericToEncoding defaultOptions
         { fieldLabelModifier = drop 7 }
 
+-- Drop "_taiji_" prefix
 instance FromJSON TaijiConfig where
     parseJSON = genericParseJSON defaultOptions
         { fieldLabelModifier = drop 7 }
@@ -68,10 +71,7 @@ data NetNode = NetNode
     , nodeExpression       :: Maybe Double
     , nodeScaledExpression :: Maybe Double
     , pageRankScore        :: Maybe Double
-    } deriving (Generic, Show, Read, Eq)
-
-instance Hashable NetNode where
-    hashWithSalt salt at = hashWithSalt salt $ nodeName at
+    } deriving (Generic, Show, Read, Eq, Ord)
 
 instance Serialize NetNode
 
