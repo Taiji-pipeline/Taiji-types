@@ -71,6 +71,7 @@ data NetNode = NetNode
     , nodeExpression       :: Maybe Double
     , nodeScaledExpression :: Maybe Double
     , pageRankScore        :: Maybe Double
+    , pageRankPvalue       :: Maybe Double
     } deriving (Generic, Show, Read, Eq, Ord)
 
 instance Serialize NetNode
