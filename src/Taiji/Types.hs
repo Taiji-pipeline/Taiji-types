@@ -64,7 +64,6 @@ data DomainType = Promoter
                 deriving (Eq)
 
 type Linkage = (GeneName, [(GeneName, Double)], [(GeneName, Double)])
--- type Assignment = BEDExt BED3
 
 data NetNode = NetNode
     { nodeName             :: GeneName
@@ -76,6 +75,15 @@ data NetNode = NetNode
 
 instance Serialize NetNode
 
+defaultNode :: NetNode
+defaultNode = NetNode
+    { nodeName = ""
+    , nodeExpression = Nothing
+    , nodeScaledExpression = Nothing
+    , pageRankScore = Nothing
+    , pageRankPvalue = Nothing
+    }
+
 data NetEdge = NetEdge
     { weightExpression  :: Maybe Double
     , weightCorrelation :: Maybe Double
@@ -83,6 +91,13 @@ data NetEdge = NetEdge
     } deriving (Generic, Show, Read)
 
 instance Serialize NetEdge
+
+defaultEdge :: NetEdge
+defaultEdge = NetEdge
+    { weightExpression = Nothing 
+    , weightCorrelation = Nothing
+    , sites = 0
+    }
 
 instance Default (CI B.ByteString) where
     def = ""
