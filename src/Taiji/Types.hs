@@ -2,17 +2,23 @@
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE TemplateHaskell   #-}
+{-# LANGUAGE RecordWildCards #-}
 module Taiji.Types where
 
 import           Bio.Data.Bed
+import Control.Lens
 import           Bio.Pipeline.Instances ()
 import           Bio.Pipeline.Utils     (Directory)
+import Bio.Utils.Misc (readDouble)
 import           Data.Aeson
+import Data.Char
 import qualified Data.ByteString.Char8  as B
-import           Data.CaseInsensitive   (CI)
+import           Data.CaseInsensitive   (CI, mk, original)
 import           Data.Default.Class
+import Data.Maybe
 import           Data.Serialize         (Serialize (..))
 import           GHC.Generics           (Generic)
+import Data.Double.Conversion.ByteString (toShortest)
 
 data TaijiConfig = TaijiConfig
     { _taiji_output_dir   :: Directory
@@ -63,18 +69,29 @@ data DomainType = Promoter
                 | Enhancer
                 deriving (Eq)
 
-type Linkage = (GeneName, [(GeneName, Double)], [(GeneName, Double)])
-
 data NetNode = NetNode
-    { nodeName             :: GeneName
-    , nodeExpression       :: Maybe Double
-    , nodeScaledExpression :: Maybe Double
-    , pageRankScore        :: Maybe Double
-    , pageRankPvalue       :: Maybe Double
+    { _node_name              :: GeneName
+    , _node_expression        :: Maybe Double
+    , _node_scaled_expression :: Maybe Double
     } deriving (Generic, Show, Read, Eq, Ord)
 
 instance Serialize NetNode
 
+nodeToLine :: NetNode -> B.ByteString
+nodeToLine NetNode{..} = B.intercalate ","
+    [ B.map toUpper $ original _node_name
+    , fromMaybe "" $ fmap toShortest _node_expression
+    , fromMaybe "" $ fmap toShortest _node_scaled_expression
+    ]
+
+nodeFromLine :: B.ByteString -> NetNode
+nodeFromLine l = NetNode (mk f1)
+    (if B.null f2 then Nothing else Just $ readDouble f2)
+    (if B.null f3 then Nothing else Just $ readDouble f3)
+  where
+    [f1,f2,f3] = B.split ',' l
+
+{-
 defaultNode :: NetNode
 defaultNode = NetNode
     { nodeName = ""
@@ -83,21 +100,42 @@ defaultNode = NetNode
     , pageRankScore = Nothing
     , pageRankPvalue = Nothing
     }
+    -}
+
+data EdgeType =
+      Binding { _edge_binding_locus :: BED3
+              , _edge_binding_annotation :: B.ByteString
+              , _edge_binding_affinity :: Double }
+    | Combined Double
+    deriving (Generic, Show, Read)
 
 data NetEdge = NetEdge
-    { weightExpression  :: Maybe Double
-    , weightCorrelation :: Maybe Double
-    , sites             :: Double
+    { _edge_from :: CI B.ByteString
+    , _edge_to :: CI B.ByteString
+    , _edge_type :: EdgeType
     } deriving (Generic, Show, Read)
 
-instance Serialize NetEdge
+edgeToLine :: NetEdge -> B.ByteString
+edgeToLine NetEdge{..} = B.intercalate "," $
+    [ B.map toUpper $ original _edge_from
+    , B.map toUpper $ original _edge_to
+    ] ++ f _edge_type
+  where
+    f Binding{..} = [ _edge_binding_locus^.chrom
+                    , B.pack $ show $ _edge_binding_locus^.chromStart 
+                    , B.pack $ show $ _edge_binding_locus^.chromEnd
+                    , _edge_binding_annotation
+                    , toShortest _edge_binding_affinity
+                    , "BIND"]
+    f (Combined w) = [toShortest w, "COMBINED_REGULATE"]
 
+{-
 defaultEdge :: NetEdge
 defaultEdge = NetEdge
-    { weightExpression = Nothing 
-    , weightCorrelation = Nothing
-    , sites = 0
+    { _edge_weight_expression = Nothing 
+    , _edge_weight_binding = 0
     }
+    -}
 
 instance Default (CI B.ByteString) where
     def = ""
