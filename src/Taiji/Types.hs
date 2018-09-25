@@ -32,6 +32,7 @@ data TaijiConfig = TaijiConfig
     , _taiji_genome_index :: Maybe FilePath
     , _taiji_motif_file   :: Maybe FilePath
     , _taiji_tmp_dir      :: Maybe FilePath
+    , _taiji_external_network :: Maybe FilePath
     } deriving (Generic)
 
 instance Default TaijiConfig where
@@ -47,6 +48,7 @@ instance Default TaijiConfig where
         , _taiji_genome_index = def
         , _taiji_motif_file = def
         , _taiji_tmp_dir = def
+        , _taiji_external_network = def
         }
 
 -- Drop "_taiji_" prefix
