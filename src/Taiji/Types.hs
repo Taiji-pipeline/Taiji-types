@@ -93,17 +93,6 @@ nodeFromLine l = NetNode (mk f1)
   where
     [f1,f2,f3] = B.split ',' l
 
-{-
-defaultNode :: NetNode
-defaultNode = NetNode
-    { nodeName = ""
-    , nodeExpression = Nothing
-    , nodeScaledExpression = Nothing
-    , pageRankScore = Nothing
-    , pageRankPvalue = Nothing
-    }
-    -}
-
 data EdgeType =
       Binding { _edge_binding_locus :: BED3
               , _edge_binding_annotation :: B.ByteString
@@ -131,13 +120,23 @@ edgeToLine NetEdge{..} = B.intercalate "," $
                     , "BIND"]
     f (Combined w) = [toShortest w, "COMBINED_REGULATE"]
 
-{-
-defaultEdge :: NetEdge
-defaultEdge = NetEdge
-    { _edge_weight_expression = Nothing 
-    , _edge_weight_binding = 0
-    }
-    -}
-
 instance Default (CI B.ByteString) where
     def = ""
+
+data QCSamples = Single String
+               | Pair String String
+               deriving (Generic, Read, Show, Eq, Ord)
+instance Serialize QCSamples
+instance FromJSON QCSamples
+instance ToJSON QCSamples
+
+data QC = QC
+    { _qc_name :: String
+    , _qc_sample_name :: QCSamples
+    , _qc_result :: Double
+    , _qc_score :: Maybe Int
+    } deriving (Generic, Read, Show, Eq, Ord)
+
+instance Serialize QC
+instance FromJSON QC
+instance ToJSON QC
