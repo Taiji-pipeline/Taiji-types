@@ -123,18 +123,24 @@ edgeToLine NetEdge{..} = B.intercalate "," $
 instance Default (CI B.ByteString) where
     def = ""
 
-data QCSamples = Single String
-               | Pair String String
-               deriving (Generic, Read, Show, Eq, Ord)
-instance Serialize QCSamples
-instance FromJSON QCSamples
-instance ToJSON QCSamples
+data PlotType = Density | Bar
+    deriving (Generic, Read, Show, Eq, Ord)
+
+instance Serialize PlotType
+instance FromJSON PlotType
+instance ToJSON PlotType
+
+data QCResult = QCVector [String] [Double]
+    deriving (Generic, Read, Show, Eq, Ord)
+
+instance Serialize QCResult
+instance FromJSON QCResult
+instance ToJSON QCResult
 
 data QC = QC
     { _qc_name :: String
-    , _qc_sample_name :: QCSamples
-    , _qc_result :: Double
-    , _qc_score :: Maybe Int
+    , _qc_result :: QCResult
+    , _qc_plot_type :: PlotType
     } deriving (Generic, Read, Show, Eq, Ord)
 
 instance Serialize QC
