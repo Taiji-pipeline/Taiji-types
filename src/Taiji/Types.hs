@@ -23,7 +23,6 @@ import Data.Double.Conversion.ByteString (toShortest)
 data TaijiConfig = TaijiConfig
     { _taiji_output_dir   :: Directory
     , _taiji_input        :: FilePath
-    , _taiji_picard       :: Maybe FilePath
     , _taiji_genome       :: Maybe FilePath
     , _taiji_bwa_index    :: Maybe FilePath
     , _taiji_star_index   :: Maybe FilePath
@@ -39,7 +38,6 @@ instance Default TaijiConfig where
     def = TaijiConfig
         { _taiji_output_dir = "output"
         , _taiji_input = "input.yml"
-        , _taiji_picard = def
         , _taiji_genome = def
         , _taiji_bwa_index = def
         , _taiji_star_index = def
