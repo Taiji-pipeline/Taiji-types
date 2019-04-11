@@ -3,7 +3,24 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE TemplateHaskell   #-}
 {-# LANGUAGE RecordWildCards #-}
-module Taiji.Types where
+module Taiji.Types
+    ( TaijiConfig(..)
+    , GeneName
+    , Promoter
+    , RegDomain
+    , DomainType(..)
+    , NetNode(..)
+    , nodeToLine
+    , nodeFromLine
+    , EdgeType(..)
+    , NetEdge(..)
+    , edgeToLine
+    , PlotType(..)
+    , QCResult(..)
+    , QC(..)
+    , Value(..)
+    , encodeFile
+    ) where
 
 import           Bio.Data.Bed
 import Control.Lens
@@ -121,17 +138,15 @@ edgeToLine NetEdge{..} = B.intercalate "," $
 instance Default (CI B.ByteString) where
     def = ""
 
-data PlotType = Density | Bar
+data PlotType = Density | Bar | Violin
     deriving (Generic, Read, Show, Eq, Ord)
 
-instance Serialize PlotType
 instance FromJSON PlotType
 instance ToJSON PlotType
 
-data QCResult = QCVector [String] [Double]
-    deriving (Generic, Read, Show, Eq, Ord)
+data QCResult = QCResult [Value] [Value]
+    deriving (Generic, Read, Show, Eq)
 
-instance Serialize QCResult
 instance FromJSON QCResult
 instance ToJSON QCResult
 
@@ -139,8 +154,7 @@ data QC = QC
     { _qc_name :: String
     , _qc_result :: QCResult
     , _qc_plot_type :: PlotType
-    } deriving (Generic, Read, Show, Eq, Ord)
+    } deriving (Generic, Read, Show, Eq)
 
-instance Serialize QC
 instance FromJSON QC
 instance ToJSON QC
