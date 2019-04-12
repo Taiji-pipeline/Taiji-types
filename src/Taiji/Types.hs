@@ -18,8 +18,6 @@ module Taiji.Types
     , PlotType(..)
     , QCResult(..)
     , QC(..)
-    , Value(..)
-    , encodeFile
     ) where
 
 import           Bio.Data.Bed
@@ -143,12 +141,18 @@ data PlotType = Density | Bar | Violin
 
 instance FromJSON PlotType
 instance ToJSON PlotType
+instance Serialize PlotType
 
 data QCResult = QCResult [Value] [Value]
     deriving (Generic, Read, Show, Eq)
 
+instance Serialize Value where
+    put x = put $ encode x
+    get = fromJust . decode <$> get
+
 instance FromJSON QCResult
 instance ToJSON QCResult
+instance Serialize QCResult
 
 data QC = QC
     { _qc_name :: String
@@ -158,3 +162,4 @@ data QC = QC
 
 instance FromJSON QC
 instance ToJSON QC
+instance Serialize QC
