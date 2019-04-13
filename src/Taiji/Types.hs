@@ -16,7 +16,6 @@ module Taiji.Types
     , NetEdge(..)
     , edgeToLine
     , PlotType(..)
-    , QCResult(..)
     , QC(..)
     ) where
 
@@ -136,27 +135,28 @@ edgeToLine NetEdge{..} = B.intercalate "," $
 instance Default (CI B.ByteString) where
     def = ""
 
-data PlotType = Density | Bar | Violin
+type DataSeries a = (String, [a])
+
+data PlotType = Line
+    { _line_data :: [(Double, Double)] }
+              | Bar
+    { _bar_label :: [String] 
+    , _bar_data :: [DataSeries Double] }
+              | Violin
+    { _violin_label :: [String]
+    , _violin_data :: [[Double]] }
     deriving (Generic, Read, Show, Eq, Ord)
 
 instance FromJSON PlotType
 instance ToJSON PlotType
 instance Serialize PlotType
 
-data QCResult = QCResult [Value] [Value]
-    deriving (Generic, Read, Show, Eq)
-
 instance Serialize Value where
     put x = put $ encode x
     get = fromJust . decode <$> get
 
-instance FromJSON QCResult
-instance ToJSON QCResult
-instance Serialize QCResult
-
 data QC = QC
     { _qc_name :: String
-    , _qc_result :: QCResult
     , _qc_plot_type :: PlotType
     } deriving (Generic, Read, Show, Eq)
 
