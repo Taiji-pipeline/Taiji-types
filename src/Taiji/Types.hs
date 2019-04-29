@@ -85,8 +85,8 @@ data DomainType = Promoter
 
 data NetNode = NetNode
     { _node_name              :: GeneName
+    , _node_weight            :: Double
     , _node_expression        :: Maybe Double
-    , _node_scaled_expression :: Maybe Double
     } deriving (Generic, Show, Read, Eq, Ord)
 
 instance Serialize NetNode
@@ -94,13 +94,12 @@ instance Serialize NetNode
 nodeToLine :: NetNode -> B.ByteString
 nodeToLine NetNode{..} = B.intercalate ","
     [ B.map toUpper $ original _node_name
+    , toShortest _node_weight
     , fromMaybe "" $ fmap toShortest _node_expression
-    , fromMaybe "" $ fmap toShortest _node_scaled_expression
     ]
 
 nodeFromLine :: B.ByteString -> NetNode
-nodeFromLine l = NetNode (mk f1)
-    (if B.null f2 then Nothing else Just $ readDouble f2)
+nodeFromLine l = NetNode (mk f1) (readDouble f2)
     (if B.null f3 then Nothing else Just $ readDouble f3)
   where
     [f1,f2,f3] = B.split ',' l
